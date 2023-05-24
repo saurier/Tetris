@@ -5,14 +5,21 @@
 GL course Pet Project - Tetris with rotary encoder control
 
 ## Screenshots
+<h3 align="center">Start screen</a> 
 
-<kbd> <image src="/Tetris/Screenshoots/1.PNG" alt="Start screen"></kbd>
+![](https://github.com/saurier/Tetris/blob/main/Tetris/Screenshots/1.PNG) 
 
-<kbd> <image src="/Tetris/Screenshoots/2.PNG" alt="In game"></kbd>
+<h3 align="center">In game</a>
 
-<kbd> <image src="/Tetris/Screenshoots/3.PNG" alt="Post game"></kbd>
+![](https://github.com/saurier/Tetris/blob/main/Tetris/Screenshots/2.PNG)
 
-<kbd> <image src="/Tetris/Screenshoots/4.PNG" alt="Toplist"></kbd>
+<h3 align="center">Post game</a>
+
+![](https://github.com/saurier/Tetris/blob/main/Tetris/Screenshots/3.PNG)
+
+<h3 align="center">Toplist</a>
+
+![](https://github.com/saurier/Tetris/blob/main/Tetris/Screenshots/4.PNG)
 
 
 
