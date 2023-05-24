@@ -12,17 +12,17 @@ MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Kriz");
 MODULE_DESCRIPTION("Rotary Encoder Driver");
 
-// периодическая таска
+// periodic task
 static int rotary_encoder_task(void *data)
 {
     while (!kthread_should_stop())
     {
-        msleep(UPDATE_INTERVAL);//приостанавливаем выполнение потока на UPDATE_INTERVAL миллисекунд
+        msleep(UPDATE_INTERVAL);
     }
     return 0;
 }
 
-//открытие файла энкодера
+//open encoder file
 static int rotary_encoder_open(struct inode *inode, struct file *filp)
 {
     if (is_open)
@@ -32,30 +32,30 @@ static int rotary_encoder_open(struct inode *inode, struct file *filp)
     }
     is_open = 1;
 
-    // Запускаем периодическую таску
+    // start periodic task
     task = kthread_run(rotary_encoder_task, NULL, "rotary_encoder_task");
     pr_info("%s: %s\n", DEVICE_NAME, "open");
     return 0;
 }
 
-//закрытие файла энкодера
+//release encoder file
 static int rotary_encoder_release(struct inode *inode, struct file *filp)
 {
-    // остановка периодической таски
+    // stop periodic task
     kthread_stop(task);
     is_open = 0;
     pr_info("%s: %s\n", DEVICE_NAME, "release");
     return 0;
 }
 
-//чтение файла энкодера
+//read encoder file
 static ssize_t rotary_encoder_read(struct file *filp, char *buf, size_t count, loff_t *f_pos)
 {
-    // конвертируем значение позиции єнкодера в строку
+    // convert the encoder position value into a string
     char output[BUFFER_SIZE];
     snprintf(output, BUFFER_SIZE, "%d\n", encoder_pos / 2);
 
-    // копируем строку в user-space буффер
+    // copy the string into the user-space buffer
     if (copy_to_user(buf, output, strlen(output)) != 0)
     {
         return -EFAULT;
@@ -64,7 +64,7 @@ static ssize_t rotary_encoder_read(struct file *filp, char *buf, size_t count, l
     return strlen(output);
 }
 
-// функционал драйвера устройства
+// functionality of device driver
 static struct file_operations rotary_fops =
 {
     .owner = THIS_MODULE,
@@ -74,15 +74,15 @@ static struct file_operations rotary_fops =
     .unlocked_ioctl = dev_ioctl,
 };
 
-// обработка прерываний
+// interrupt handling
 static irqreturn_t rotary_encoder_isr(int irq, void *dev_id)
 {
-    ndelay(delayTime); // защита от дребезга контактов
+    ndelay(delayTime); // contact bouncing protection
 
-    if (irq == irq_sw) // если прерывание от свича
+    if (irq == irq_sw) // if interrupted by the switch
     {
-        currBTN = gpio_get_value(GPIO_PIN_SW); // считываем состояние свича
-        if (currBTN == prevBTN)                // сравниваем с предыдущим состоянием
+        currBTN = gpio_get_value(GPIO_PIN_SW); // read the status of the switch
+        if (currBTN == prevBTN)                
         {
             return IRQ_HANDLED;
         }
@@ -93,17 +93,17 @@ static irqreturn_t rotary_encoder_isr(int irq, void *dev_id)
             prevBTN = currBTN;
         }
     }
-    if (irq == irq_a || irq == irq_b) // если прерывание от поворота энкодера
+    if (irq == irq_a || irq == irq_b) // if interrupted by an encoder rotation
     {
-        currA = gpio_get_value(GPIO_PIN_A); // считываем состояние контактов
+        currA = gpio_get_value(GPIO_PIN_A); // read the status of the a and b
         currB = gpio_get_value(GPIO_PIN_B);
 
-        if (currA == prevA && currB == prevB) // сравниваем с предыдущим положением
+        if (currA == prevA && currB == prevB) // compare to previous
         {
             return IRQ_HANDLED;
         }
 
-        if (prevA == 0 && prevB == 0) // определяем номер предыдущего положения энкодера
+        if (prevA == 0 && prevB == 0) // determine the number of the previous encoder position
         {
             prevAB = 0;
         }
@@ -120,7 +120,7 @@ static irqreturn_t rotary_encoder_isr(int irq, void *dev_id)
             prevAB = 3;
         }
 
-        if (currA == 0 && currB == 0) // определяем номер нынешнего положения энкодера
+        if (currA == 0 && currB == 0) // determine the number of the current encoder position
         {
             currAB = 0;
         }
@@ -137,14 +137,14 @@ static irqreturn_t rotary_encoder_isr(int irq, void *dev_id)
             currAB = 3;
         }
 
-        switch (prevAB) // в зависимости от предыдущего положения энкодера
+        switch (prevAB) // depending on the previous encoder position
         {
         case 0:
-            if (currAB == 3) // енкодер был повернут влево
+            if (currAB == 3) // was turned to the left
             {
                 encoder_pos--;
             }
-            if (currAB == 1) // енкодер был повернут вправо
+            if (currAB == 1) // was turned to the right
             {
                 encoder_pos++;
             }
@@ -183,35 +183,35 @@ static irqreturn_t rotary_encoder_isr(int irq, void *dev_id)
 
         pr_info("%s: %s %d\n", DEVICE_NAME, "pos is", encoder_pos / 2);
 
-        prevA = currA; // обновляем положение энкодера
+        prevA = currA; // upd previous state
         prevB = currB;
     }
 
     return IRQ_HANDLED;
 }
 
-// Функция для описания прав файла devFS
+// devFS file permissions
 static int access_to_dev(struct device *dev, struct kobj_uevent_env *env)
 {
     add_uevent_var(env, "DEVMODE=%#o", 0666);
     return 0;
 }
 
-// init модуля
+
 static int rotary_encoder_init(void)
 {
     int ret;
     is_open = 0;
     data_size = 0;
 
-    // определение мажора и минора
+    // major and minor
     if (alloc_chrdev_region(&dev, 3, 1, DEVICE_NAME))
     {
         pr_err("%s: %s\n", DEVICE_NAME, "Failed to alloc_chrdev_region");
         return -1;
     }
 
-    // добавляем устройство в систему
+    // add device to the system
     cdev_init(&chrdev_cdev, &rotary_fops);
     if ((cdev_add(&chrdev_cdev, dev, 1)) < 0)
     {
@@ -219,22 +219,22 @@ static int rotary_encoder_init(void)
         goto cdev_err;
     }
 
-    // создаем класс устройства
+    // create dev class
     pclass = class_create(THIS_MODULE, CLASS_NAME);
     if (IS_ERR(pclass))
     {
         goto class_err;
     }
-    pclass->dev_uevent = access_to_dev; // функция для доступа к /dev/*
+    pclass->dev_uevent = access_to_dev; // perm to dev file
 
-    // создаем ноду устройства
+    // create node
     pdev = device_create(pclass, NULL, dev, NULL, CLASS_NAME "1");
     if (IS_ERR(pdev))
     {
         goto device_err;
     }
 
-    // создаем procfs директорию и файл
+    // create procfs entry
     proc_folder = proc_mkdir(PROC_DIR_NAME, NULL);
     if (IS_ERR(proc_folder))
     {
@@ -249,7 +249,7 @@ static int rotary_encoder_init(void)
         goto procfs_file_err;
     }
 
-    // создаем sysfs файл
+    // sysfs entry
     chrdev_kobj = kobject_create_and_add("chrdev_sysfs", kernel_kobj);
     if (sysfs_create_file(chrdev_kobj, &chrdev_attr.attr))
     {
@@ -257,27 +257,27 @@ static int rotary_encoder_init(void)
         goto sysfs_err;
     }
 
-    // Запрос на доступность GPIO пинов и их резервирование
+     
     gpio_request(GPIO_PIN_A, "rotary_encoder_a");
     gpio_request(GPIO_PIN_B, "rotary_encoder_b");
     gpio_request(GPIO_PIN_SW, "rotary_encoder_sw");
 
-    // Устанавливаем GPIO пины на режим приема сигнала
+    
     gpio_direction_input(GPIO_PIN_A);
     gpio_direction_input(GPIO_PIN_B);
     gpio_direction_input(GPIO_PIN_SW);
 
-    // Устанавливаем значение напряжения на пинах
+    
     gpio_set_value(GPIO_PIN_A, 1);
     gpio_set_value(GPIO_PIN_B, 1);
     gpio_set_value(GPIO_PIN_SW, 1);
 
-    // Получение номера прерывания для пинов
+    
     irq_a = gpio_to_irq(GPIO_PIN_A);
     irq_b = gpio_to_irq(GPIO_PIN_B);
     irq_sw = gpio_to_irq(GPIO_PIN_SW);
 
-    // Запрос и регистрация обработчика прерывания для каждого из номеров прерывания
+    
     ret = request_irq(irq_a, rotary_encoder_isr, IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING, "rotary_encoder_a", NULL);
     if (ret != 0)
     {
@@ -299,7 +299,7 @@ static int rotary_encoder_init(void)
         goto fail_request_irq;
     }
 
-    // Инициализация была проведена успешно
+    // Success
     pr_info("%s: %s\n", DEVICE_NAME, "INIT");
     pr_info("%s: %s %s\n", DEVICE_NAME, "Device registered as", CLASS_NAME);
     return 0;
@@ -327,7 +327,7 @@ cdev_err:
     return ret;
 }
 
-// exit модуля
+
 static void __exit rotary_encoder_exit(void)
 {
     free_irq(irq_a, NULL);

@@ -10,33 +10,33 @@
 
 int main(void)
 {
-	name = malloc(sizeof *name * 14);		// выделяем память под имя игрока прямо во время выполнения программы. 14 потому что спроектированный графический интерфейс расчитан на максимальную длинну 14
-	srand(time(NULL));						// запускаем генератор псевдослучайных чисел в качестве базы берем текущее время, чтобы при разных запусках игры была разная база, соответственно, разные фигуры в игре
-	initscr();								// инициализирует библиотеку curses, возвращает объект окна, представляющий весь экран.
-	start_color();							// вызывается, когда планируется использовать цвета. Функция инициализирует восемь основных цветов и глобальные переменные COLORS & COLOR_PAIRS. Они содержат максимальное количество цветов и цветніх пар, которіе может поддержать терминал
-	cbreak();								// вход в режим cbreak. функция меняет режим клавиатуры на частичный контроль над клавиатурой (прерывания по типу ctrl+c будут обрабатываться). raw() режим - полный контроль без прерываний.
-	init_pair(1, COLOR_GREEN, COLOR_BLACK); // добавляется пара зеленый передний план + черный задний план.изменяет определение цветовой пары. init_pair(номер пары цветов, которую нужно изменить, номер цвета переднего плана, номер цвета заднего плана)
-	init_pair(2, COLOR_RED, COLOR_BLACK);	// добавляется пара красный передний план + черный задний план.
-	attron(COLOR_PAIR(1));					// аттрибут включить(первую цветовую пару) ко всем записям на текущем окне
+	name = malloc(sizeof *name * 14);		// gui is designed for a maximum length of 14
+	srand(time(NULL));						
+	initscr();								// initializes the curses library, returns a window object representing the whole screen.
+	start_color();							
+	cbreak();								// enter cbreak mode. the function changes the keyboard mode to partial keyboard control (interrupts like ctrl+c will be handled). raw() mode - full control without interrupts.
+	init_pair(1, COLOR_GREEN, COLOR_BLACK); 
+	init_pair(2, COLOR_RED, COLOR_BLACK);	
+	attron(COLOR_PAIR(1));					
 	do
 	{
-		clear();														// очищает окно, но приводит к перекрашиванию всего окна при следующем refresh()
-		printw("\n\n\n       Enter starting level (1-%d): ", MAXLEVEL); // макрос, который разворачивается в wprintw(stdscr,"text"). В чистом виде wprintw в качестве своего параметра получают окно
-		refresh();														// синхронизировать фактический экран с предыдущими методами рисования
-		scanw("%d ", &startlevel);										// макрос, который разворачивается в wscanw(stdscr,"text"). В чистом виде wscanw в качестве своего параметра получают окно
-	} while (startlevel < 1 || startlevel > MAXLEVEL);					// запрашиваем номер уровня, пока ответ не окажется в требуемом диапазоне
-	clear();															// очищаем
-	printw("\n\n\n       Enter your name: ");							// макрос, который разворачивается в wprintw(stdscr,"text"). В чистом виде wprintw в качестве своего параметра получают окно
-	refresh();															// // почему именно сейчас?
-	scanw("%13s ", name);												// макрос, который разворачивается в wscanw(stdscr,"text"). В чистом виде wscanw в качестве своего параметра получают окно
-	noecho();															// // что такое режим эхо? выход из эхо-режима. эхо входнвх символов отключено.
-	curs_set(0);														// установить курсор как невидимый
-	next = rand() % 7;													// генерируем рандомное число для рандомной первой фигуры в игре
-	fileDev = fopen("/dev/rotary1", "r");								// открываем файл dev/rotaty1 для считывания позиции энкодера и записываем указатель на поток, связанный с этим файлом
+		clear();														
+		printw("\n\n\n       Enter starting level (1-%d): ", MAXLEVEL); 
+		refresh();														
+		scanw("%d ", &startlevel);										
+	} while (startlevel < 1 || startlevel > MAXLEVEL);					
+	clear();															
+	printw("\n\n\n       Enter your name: ");							
+	refresh();															
+	scanw("%13s ", name);												
+	noecho();															// exit echo mode. echo of input characters is disabled.
+	curs_set(0);														// set the cursor as invisible
+	next = rand() % 7;													
+	fileDev = fopen("/dev/rotary1", "r");								// open the file dev/rotaty1 to read the encoder position
 	while (!game())
-		;			 // остаемся здесь, когда game() == 1, !game() = 0, 0 = false, false = прекращение работы цикла while
-	free(name);		 // освобождаем память из кучи(динамической памяти во время выполнения программы) с именем игрока. это важно делать, чтобы избежать утечек памяти
-	endwin();		 // деинициализация библиотеки и возвращение терминала в нормальное состояние
-	fclose(fileDev); // закрываем поток к файлу для считывания позиции енкодера
+		;			 
+	free(name);		 
+	endwin();		 // deinitialize the library and return the terminal to its normal state
+	fclose(fileDev); 
 	return 0;
 }

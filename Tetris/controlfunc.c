@@ -11,7 +11,7 @@
 // reads key bindings from config
 void setkeybind()
 {
-	right[3][3] = toupper(MOVL); // впечатывает установленные клавиши управления в инструкцию, которая лежит в правой части игрового экрана
+	right[3][3] = toupper(MOVL);
 	right[3][14] = toupper(MOVR);
 	right[4][8] = toupper(ROTA);
 	right[5][3] = toupper(DROP);
@@ -27,7 +27,7 @@ void moveleft()
 	switch (piece)
 	{
 	case 'I':
-		if (center[fixedpoint[0]][fixedpoint[1] + -6] == '[' || center[fixedpoint[0]][fixedpoint[1] - 6] == '<')//если некуда больше двигать влево, то выходим из функции
+		if (center[fixedpoint[0]][fixedpoint[1] + -6] == '[' || center[fixedpoint[0]][fixedpoint[1] - 6] == '<')
 		{
 			return;
 		}
@@ -248,7 +248,7 @@ void moveright()
 	switch (piece)
 	{
 	case 'I':
-		if (center[fixedpoint[0]][fixedpoint[1] + 4] == '[' || center[fixedpoint[0]][fixedpoint[1] + 4] == '!')//если некуда больше двигать влево, то выходим из функции
+		if (center[fixedpoint[0]][fixedpoint[1] + 4] == '[' || center[fixedpoint[0]][fixedpoint[1] + 4] == '!')
 		{
 			return;
 		}
@@ -464,24 +464,24 @@ int movedown()
 	switch (piece)
 	{
 	case 'I':
-		if (center[fixedpoint[0] + 1][fixedpoint[1] - 4] == '=') // как только фигура достигла дна
+		if (center[fixedpoint[0] + 1][fixedpoint[1] - 4] == '=') 
 		{
 			initpiece();
 			return 0;
 		}
-		for (int i = 0; i < 4; ++i) // проходимся по ширине всей фигуры [][][][]
+		for (int i = 0; i < 4; ++i) 
 		{
-			if (center[fixedpoint[0] + 1][fixedpoint[1] - 4 + i * 2] == '[') // если пространство ниже под фигурой занято символом "[", то есть фигура ниже опуститься не может
+			if (center[fixedpoint[0] + 1][fixedpoint[1] - 4 + i * 2] == '[') 
 			{
-				if (fixedpoint[0] == 1 || fixedpoint[0] == 2) // а пространства вверху нет
+				if (fixedpoint[0] == 1 || fixedpoint[0] == 2) 
 				{
-					return gameover(); // то конец игры
+					return gameover(); 
 				}
-				initpiece(); // иначе - генерируем новую фигуру
+				initpiece(); 
 				return 0;
 			}
 		}
-		// иначе - передвигаем строки фигуры ниже
+		
 		memcpy(center[fixedpoint[0] + 1] + fixedpoint[1] - 4, center[fixedpoint[0]] + fixedpoint[1] - 4, 8);
 		memcpy(center[fixedpoint[0]++] + fixedpoint[1] - 4, TetrominoI[0] + fixedpoint[1] - 4, 8);
 		return 0;
@@ -797,20 +797,20 @@ void rotate()
 {
 	switch (piece)
 	{
-	case 'I'://процесс переворачивания фигуры I в фигуру і
+	case 'I':
 		if (center[fixedpoint[0] + 1][fixedpoint[1]] == '[' || center[fixedpoint[0] + 1][fixedpoint[1]] == '=' || center[fixedpoint[0] - 1][fixedpoint[1]] == '[' || center[fixedpoint[0] - 2][fixedpoint[1]] == '[') //если крутить фигуру места нет, то ничего не делаем
 		{
 			return;
 		}
-		 //иначе - крутим фигуру
+		 
 		memcpy(center[fixedpoint[0] - 2] + fixedpoint[1], center[fixedpoint[0]] + fixedpoint[1], 2);
 		memcpy(center[fixedpoint[0] - 1] + fixedpoint[1], center[fixedpoint[0]] + fixedpoint[1], 2);
 		memcpy(center[fixedpoint[0]] + fixedpoint[1] - 4, TetrominoI[0] + fixedpoint[1] - 4, 4);
 		memcpy(center[fixedpoint[0]] + fixedpoint[1] + 2, TetrominoI[0] + fixedpoint[1] + 2, 2);
 		memcpy(center[fixedpoint[0] + 1] + fixedpoint[1], center[fixedpoint[0]] + fixedpoint[1], 2);
-		piece = 'i'; //фиксируем новое обозначение положения фигуры - та же фигура, но перевернутая
+		piece = 'i'; 
 		return;
-	case 'i'://процесс переворачивания фигуры і обратно в I 
+	case 'i': 
 		if (center[fixedpoint[0]][fixedpoint[1] + 2] == '[' || center[fixedpoint[0]][fixedpoint[1] + 2] == '!' || center[fixedpoint[0]][fixedpoint[1] - 2] == '[' || center[fixedpoint[0]][fixedpoint[1] - 4] == '[' || center[fixedpoint[0]][fixedpoint[1] - 4] == '<')
 		{
 			return;
@@ -992,24 +992,23 @@ void rotate()
 // move current piece according to encoder position
 void readEncoder()
 {
-	if (fileDev != NULL) // если файл удалось открыть, то
+	if (fileDev != NULL)
 	{
-		fgets(arr, MAX_NUM_DIGITS, fileDev); // считываем значение положения енкодера
-		sscanf(arr, "%d", &currentEncoderPos);			 // чтение целого числа из строки arr и сохранение его значения в переменную currentEncoderPos. Функция sscanf требует передачи адреса переменной для сохранения считанных значений. Передача значения value без оператора взятия адреса & приведет к неправильному адресу памяти и непредсказуемому поведению программы
-	}
-	if (currentEncoderPos > prevEncoderPos) // енкодер покрутили вправо
+		fgets(arr, MAX_NUM_DIGITS, fileDev); 
+		sscanf(arr, "%d", &currentEncoderPos);
+	if (currentEncoderPos > prevEncoderPos) // right
 	{
-		for (uint32_t i = 0; i < (currentEncoderPos - prevEncoderPos); i++) //на сколько значений енкодер прокрутили, на столько двигаем фигуру влево
+		for (uint32_t i = 0; i < (currentEncoderPos - prevEncoderPos); i++)
 		{
 			moveright();
 			updatescrn();
 		}
 		prevEncoderPos = currentEncoderPos;
 	}
-	if (currentEncoderPos < prevEncoderPos) // енкодер покрутили влево
+	if (currentEncoderPos < prevEncoderPos) //left
 	{
 
-		for (uint32_t i = 0; i < (prevEncoderPos - currentEncoderPos); i++)//на сколько значений енкодер прокрутили, на столько двигаем фигуру вправо
+		for (uint32_t i = 0; i < (prevEncoderPos - currentEncoderPos); i++)
 		{
 			moveleft();
 			updatescrn();

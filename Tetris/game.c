@@ -8,12 +8,10 @@
 // function shows next tetromino
 void show_next()
 {
-	switch (next) // в зависимости от следующей фигуры
+	switch (next)
 	{
 	case 0:
-		memcpy(left[11] + WIDTH - 10, TetrominoI[1] + 8, 8); // меняем в массиве ячейки на рисунок соответствующей фигуры
-		return;
-	case 1:
+		memcpy(left[11] + WIDTH - 10, TetrominoI[1] + 8, 8);
 		memcpy(left[10] + WIDTH - 8, TetrominoJ[0] + 8, 2);
 		memcpy(left[11] + WIDTH - 8, TetrominoJ[1] + 8, 6);
 		return;
@@ -43,24 +41,24 @@ void show_next()
 // self explanatory, refreshes screen
 void updatescrn()
 {
-	clear(); // очистка содержимого текущего окна и заполнения его пробелами
+	clear();
 	printw("\n");
-	for (int i = 2; i < HEIGHT; ++i) // со второй строчки начинаем вывод по всей высоте игрового экрана
+	for (int i = 2; i < HEIGHT; ++i)
 	{
-		if (shownext) // если флаг "показывать следующую фигуру" == 1, то добавляем в массив left изображение следующей фигуры
+		if (shownext)
 		{
 			show_next();
 		}
-		printw("%s", left[i]);	 // выводим на экран левую часть игрового экрана
-		printw("%s", center[i]); // выводим на экран центр игрового экрана
-		if (showtext)			 // если флаг "показывать инструкцию" == 1, то добавляем в массив right текст с инструкцией
+		printw("%s", left[i]);	
+		printw("%s", center[i]); 
+		if (showtext)			 
 		{
-			printw("%s", right[i]); // печатаем правую часть игрового экрана
+			printw("%s", right[i]); 
 		}
 		printw("\n");
 	}
-	refresh();	  // обновления текущего содержимого окна на экране. Она принимает все изменения, сделанные с помощью функций printw(), и других, и отображает их на экране
-	if (shownext) // опустошаем место изображения следующей фигуры в массиве left
+	refresh();	 
+	if (shownext)
 	{
 		memcpy(left[10] + WIDTH - 10, "        ", 8);
 		memcpy(left[11] + WIDTH - 10, "        ", 8);
@@ -70,94 +68,94 @@ void updatescrn()
 // updates score number on the gamescreen (on the left part)
 void updatescore()
 {
-	char *tmp = malloc(sizeof *tmp * 15); // // почему 15? переменная tmp становится указателем на выделенную область памяти в куче, которую можно использовать для хранения строки до 15 символов
-	sprintf(tmp, "%-14d", score);		  // sprintf - string print, в "%-14d" подставляется переменная score и всё это записывается в переменную tmp."-" это выровненное по левому краю. 14  - 14ти символьное поле.
-	memcpy(left[7] + 9, tmp, 14);		  // вписываем в левую часть игрового экрана в место для количества баллов значение tmp длинной в 14 символов
-	free(tmp);							  // освобождаем память в куче
+	char *tmp = malloc(sizeof *tmp * 15); 
+	sprintf(tmp, "%-14d", score);		  
+	memcpy(left[7] + 9, tmp, 14);		  
+	free(tmp);							  
 }
 
 // show toplist
 void toplist()
 {
-	char *buffer = malloc(sizeof *buffer * TOPLISTMAXLINELENGTH); // выделяем динамическую память в куче под максимальное колличество строк топлиста
+	char *buffer = malloc(sizeof *buffer * TOPLISTMAXLINELENGTH); 
 	FILE *f;
-	clear();																		 // очищаем экран, заполняем пробелами
+	clear();																		 
 	if (!(f = fopen("toplist", "r")))
-	{												 // если не вышло открыть файл "топлист" для чтения
-		printw("\n\n\n    Toplist doesn't exist! Your score has to be higher than 0" // пишем текст на экране
+	{												 
+		printw("\n\n\n    Toplist doesn't exist! Your score has to be higher than 0" 
 			   " to be added ;)\n");
 	}
 	else
 	{
 		printw("\n");
-		while (fgets(buffer, TOPLISTMAXLINELENGTH, f) != NULL) // до тех пор пока не закончится информация в файле
+		while (fgets(buffer, TOPLISTMAXLINELENGTH, f) != NULL) 
 		{ 
-			printw("                        %s", buffer);	   // печатаем из буффера
+			printw("                        %s", buffer);	   
 		}
-		fclose(f);											   // закрываем соединение с файлом
+		fclose(f);											   
 	}
-	refresh();	  // обновления текущего содержимого окна на экране. Она принимает все изменения, сделанные с помощью функций printw(), и других, и отображает их на экране
-	free(buffer); // освобождаем память
-	getch();	  // ждем нажатия клавиши
+	refresh();	  
+	free(buffer); 
+	getch();	  
 }
 
 // add score to toplist (top-20) if needed
 void addscore()
 {
-	if (!score) // если количество баллов ноль
+	if (!score) 
 	{
-		return; // выходим отсюда
+		return; 
 	}
 	FILE *f;
-	if (!(f = fopen("toplist", "r"))) // если файл "топлист" не удалось открыть для чтения
+	if (!(f = fopen("toplist", "r"))) 
 	{
-		if (!(f = fopen("toplist", "w"))) // если файл не удалось открыть для записи
+		if (!(f = fopen("toplist", "w"))) 
 		{
-			exit(1); // аварийно завершаем программу
+			exit(1); 
 		}
-		fprintf(f, "NAME          LVL SCORE        \n%-13s %2d  %-14d\n", name, level, score); // пропечатываем топлист только с нынешним игроком
-		fclose(f);																			   // закрываем файл
+		fprintf(f, "NAME          LVL SCORE        \n%-13s %2d  %-14d\n", name, level, score); // print only current playes score 
+		fclose(f);																			   
 		return;
 	}
-	f = fopen("toplist", "r"); // файл "топлист" удалось открыть для чтения
+	f = fopen("toplist", "r");
 	int num, added = 0;
-	char *buffer = malloc(sizeof *buffer * TOPLISTMAXLINELENGTH); // выделяем динамическую память в куче под максимальное колличество символов в одной строке топлиста
+	char *buffer = malloc(sizeof *buffer * TOPLISTMAXLINELENGTH); 
 	FILE *tmp;
-	if (!(tmp = fopen("tmp", "a+"))) // если не удалось открыть файл ТМП в режиме добавления данных в конец и для чтения данных из файла. Если файл не существует, он будет создан.Если файл существует, данные будут добавлены в конец, а позиционный указатель файла будет установлен в конец файла.
-		exit(1);					 // аварийное завершение программы
-	int cntr = 21;//максимальное количество строк топлиста, которое может вывести спроектированный интерфейс и которое может быть записано в файл 
-	//смысл функции в том, чтобы добавить баллы текущего игрока в файл "топлист" в нужное место по рейтингу
-	while (fgets(buffer, TOPLISTMAXLINELENGTH, f) != NULL && --cntr) // записываем в буффер существующий топлист, по одному игроку, до тех пор пока не закончится информация в файле и выводимые строки на экран начиная снизу
+	if (!(tmp = fopen("tmp", "a+"))) // mode read and add data to the end of file
+		exit(1);					 
+	int cntr = 21;// max value of rows for top-20 file
+	
+	while (fgets(buffer, TOPLISTMAXLINELENGTH, f) != NULL && --cntr) 
 	{
-		num = strtol(buffer + 18, NULL, 10);   // string to long integer, десятичная система счисления
-		if (!added && score > num && num != 0) // если баллы у текущего игрока больше, чем у игроков из топлиста и у игроков из топлиста счет больше 0
+		num = strtol(buffer + 18, NULL, 10);  
+		if (!added && score > num && num != 0) 
 		{
-			fprintf(tmp, "%-13s %2d  %-14d\n", name, level, score); // записываем в файл ТМП рейтинг текущего игрока на текущей строчке
-			score = 0;												// обнуляем счетчик баллов текущего игрока
+			fprintf(tmp, "%-13s %2d  %-14d\n", name, level, score); 
+			score = 0;												
 		}
-		fputs(buffer, tmp); // записываем содержимое bufferа в файл ТМП
+		fputs(buffer, tmp); 
 	}
-	if (cntr && score) // если счет текущего игрока больше нуля и он в топ-20 
+	if (cntr && score) // if current player score > 0 and score on top-20 
 	{
-		fprintf(tmp, "%-13s %2d  %-14d\n", name, level, score); // записываем в конец файла ТМП рейтинг текущего игрока
+		fprintf(tmp, "%-13s %2d  %-14d\n", name, level, score);
 	}
-	fclose(f);				  // закрываем файл "топлист"
-	fclose(tmp);			  // закрываем временный файл
-	remove("toplist");		  // удаляем файл "топлист"
-	rename("tmp", "toplist"); // переименовываем файл ТМП в топлист
-	free(buffer);			  // освобождаем память, выделенную под буффер
+	fclose(f);				  
+	fclose(tmp);			  
+	remove("toplist");		  
+	rename("tmp", "toplist"); 
+	free(buffer);			  
 }
 
 // prints game over screen
 int gameover()
 {
-	nodelay(stdscr, FALSE); // при FALSE - переходит режим, в котором getch() будет ждать нажатия клавиш
-	if (!end)				// если игра НЕ закончилась
+	nodelay(stdscr, FALSE); // FALSE - getch() wait for press any key
+	if (!end)				
 	{
-		addscore(); // добавляем в файл рейтинг текущего игрока, обновляем топлист
+		addscore(); 
 	}
-	end = 1;									 // меняем флаг окончания игры на "игра закончилась"
-	memcpy(left[9], "    __      __      ___ \0" // добавляем на игровой экран надпись окончания игры
+	end = 1;									 
+	memcpy(left[9], "    __      __      ___ \0" 
 					"  /'_ `\\  /'__`\\  /' __`\0"
 					" /\\ \\L\\ \\/\\ \\L\\.\\_/\\ \\/\\\0"
 					" \\ \\____ \\ \\__/.\\_\\ \\_\\ \0"
@@ -180,30 +178,30 @@ int gameover()
 	memcpy(center[16], "    : QUIT    : RESET   \0"
 					   "        : TOPLIST       \0",
 		   WIDTH * 2);
-	center[16][3] = toupper(EXT);	// выводим актуальную кнопку управления для выхода
-	center[16][13] = toupper(RSET); // выводим актуальную кнопку управления для "начать заново"
-	center[17][7] = toupper(TPLS);	// выводим актуальную кнопку управления для вывода топлиста
-	clear();						// очищаем экран
+	center[16][3] = toupper(EXT);	
+	center[16][13] = toupper(RSET); 
+	center[17][7] = toupper(TPLS);	
+	clear();						
 	printw("\n");
 	for (int i = 2; i < HEIGHT; ++i)
 	{
 		if (i == 9 || i == 15 || i == 16)
 		{
-			attron(COLOR_PAIR(2)); // меняем цвет текста на вторую пару цветов (красный)
+			attron(COLOR_PAIR(2));
 		}
 		else if (i == 18)
 		{
-			attron(COLOR_PAIR(1)); // меняем цвет текста на первую  пару цветов (зеленый)
+			attron(COLOR_PAIR(1)); 
 		}
-		printw("%s", left[i]);	   // печатаем левую часть игрового экрана
+		printw("%s", left[i]);	   
 		if (i == 14 || i == 15)
 		{
-			attron(COLOR_PAIR(1)); // меняем цвет текста на первую  пару цветов (зеленый)
+			attron(COLOR_PAIR(1)); 
 		}
-		printw("%s", center[i]);   // печатаем центральную часть игрового экрана
-		printw("%s\n", right[i]);  // печатаем правую часть игрового экрана
+		printw("%s", center[i]);  
+		printw("%s\n", right[i]);  
 	}
-	refresh(); // обновления текущего содержимого окна на экране. Она принимает все изменения, сделанные с помощью функций printw(), и других, и отображает их на экране
+	refresh();
 	return 1;
 }
 
@@ -215,41 +213,41 @@ void checkclr()
 	{
 		for (int i = -2; i < 2; ++i)
 		{
-			if (!strncmp(center[fixedpoint[0] + i] + 3, "][][][][][][][][][", 18))//если ситуация на игровом єкране такая же как и "][][][][][][][][]["
+			if (!strncmp(center[fixedpoint[0] + i] + 3, "][][][][][][][][][", 18))
 			{
 				++cleared;
 				for (int j = fixedpoint[0] + i; j > 0; --j)
 				{
-					memcpy(center[j] + 2, center[j - 1] + 2, 20);//очищаем строку игрового экрана от ][][ 
+					memcpy(center[j] + 2, center[j - 1] + 2, 20);
 				}
 			}
 		}
-		if (cleared)//если произошла очистка строки
+		if (cleared)
 		{
-			score += SCORE;//добавляем баллы
-			score += dropped;//добавляем бонусные баллы
-			dropped = 0;//обнуляем
-			updatescore();//обновляем количество баллов
-			updatescrn();//перерисовываем экран
+			score += SCORE;
+			score += dropped;
+			dropped = 0;
+			updatescore();
+			updatescrn();
 		}
 	}
-	clrlines += cleared;//добавляем количество очищенных линий в общее количество
+	clrlines += cleared;
 }
 
 // initializes a new piece зачем фикседпоинт
 void initpiece()
 {
-	checkclr(); // проверяем, нужно ли стереть линии
+	checkclr(); 
 	int current;
 	current = next;
-	next = rand() % 7; // как только будущий кусочек становится текущим, сразу генерируем новый будущий кусочек
+	next = rand() % 7; 
 	switch (current)   
 	{
 	case 0:
-		memcpy(center[0], TetrominoI[0], WIDTH * 2); // копируем в центральную часть игрового экрана текущую фигуру
-		fixedpoint[0] = 1; // записываем точки фиксации для конкретной фигуры
+		memcpy(center[0], TetrominoI[0], WIDTH * 2); 
+		fixedpoint[0] = 1; 
 		fixedpoint[1] = 12;
-		piece = 'I'; // запоминаем символ формы фигуры
+		piece = 'I';
 		return;
 	case 1:
 		memcpy(center[0], TetrominoJ[0], WIDTH * 2);
@@ -373,123 +371,123 @@ void init()
 // updates level number on the gamescreen (on the left part)
 void updatelevel()
 {
-	char *tmp = malloc(sizeof *tmp * 15); // 15 потому что спроектированный интерфейс настроен на такое количество символов до области с фигурками. переменная tmp становится указателем на выделенную область памяти в куче, которую можно использовать для хранения строки до 15 символов
-	sprintf(tmp, "%-14d", level);		  // печатаем уровень в ТМП. sprintf - string print, в "%-14d" подставляется переменная level и всё это записывается в переменную tmp."-" это выровненное по левому краю. 14  - 14ти символьное поле. в такое поле вписывается значение типа decimal. в данном случаем вписывается значение переменной level
-	memcpy(left[5] + 9, tmp, 14);		  // вписываем в левую часть игрового экрана в место для номера уровня значение tmp длинной в 14 символов
-	free(tmp);							  // освобождаем память в куче
+	char *tmp = malloc(sizeof *tmp * 15); 
+	sprintf(tmp, "%-14d", level);		  
+	memcpy(left[5] + 9, tmp, 14);		  
+	free(tmp);							 
 }
 
 // simulates a game of tetris
 int game()
 {
-	nodelay(stdscr, FALSE);							 // при FALSE - переходит режим, в котором getch() будет ждать нажатия клавиш
-	init();											 // стартовый скрин копируется в массивы левыйЮ центр и правый
-	setkeybind();									 // впечатывает установленные клавиши управления в инструкцию, которая лежит в правой части экрана
-	clear();										 // очищаем всё в экрана
-	end = 0;										 // флаг окончания игры
-	score = 0;										 // счетчик баллов
-	level = startlevel;								 // уровень устанавливается на тотЮ который выбрал пользователь
-	clrlines = 0;									 // счетчик выстроенных горизонтальных линий игроком в игре
-	memcpy(left[3] + 10, name, strlen(name));		 // вписываем имя игрока в левую часть игрового экрана
-	printw("\n\n\n       Press any key to start\n"); // пишем обращение к игроку
-	refresh();										 // обновления текущего содержимого окна на экране. Она принимает все изменения, сделанные с помощью функций printw(), и других, и отображает их на экране
-	getch();										 // getch() ждет нажатия клавиши, потому что nodelay(stdscr, FALSE);
-	updatescore();									 // вписывает актуальное количество баллов в место для количества баллов на игровом экране
-	updatelevel();									 // вписывает актуальный номер уровня в место для номера уровня на игровом экране
-	initpiece();									 // выводим на центральную часть срандомизированную фигуру
-	updatescrn();									 // обновляем экран для отображения обновленной информации
-	nodelay(stdscr, TRUE);							 // при TRUE - переходит режим, в котором getch() НЕ будет ждать нажатия клавиш
-	gettimeofday(&t1, NULL);						 // в структуру t1 записывается текущее значение системного времени в секундах
+	nodelay(stdscr, FALSE);							 // FALSE - getch() wait for press any key
+	init();											 
+	setkeybind();									 
+	clear();										 
+	end = 0;										 
+	score = 0;										 
+	level = startlevel;								 
+	clrlines = 0;									 
+	memcpy(left[3] + 10, name, strlen(name));		 
+	printw("\n\n\n       Press any key to start\n"); 
+	refresh();										 
+	getch();										
+	updatescore();									 
+	updatelevel();									 
+	initpiece();									 
+	updatescrn();									 
+	nodelay(stdscr, TRUE);							 // TRUE - getch() NOT wait for press any key
+	gettimeofday(&t1, NULL);						 
 	while (!usleep(DELAY))
 	{
 		readEncoder();
 		switch (getch())
 		{
 		case DROP:
-			if (movedown()) // если опускание фигуры закончилось успешно и без gameover
+			if (movedown()) 
 			{
-				continue; // пропустить инструкции ниже
+				continue; 
 			}
-			++dropped;	  // бонусные баллы
-			updatescrn(); // перерисовываем экран с опущенной фигурой
-			continue;	  // продолжаем игру
+			++dropped;	  
+			updatescrn(); 
+			continue;	  
 		case EXT:
-			return 1; // выходим из функции
+			return 1; 
 		case RSET:
-			return 0; // выходим из функции и запускаем ее с самого начала
+			return 0; // new game
 		case STXT:
-			if (end) // если игра закончилась
+			if (end) 
 			{
-				continue; // пропустить инструкции ниже
+				continue; 
 			}
-			showtext = !showtext; // сменить значение флага для отображения инструкции управления
-			updatescrn();		  // перерисовать экран с учетом новой информации
+			showtext = !showtext; 
+			updatescrn();		  
 			continue;
 		case SNXT:
-			if (end) // если игра закончилась
+			if (end) 
 			{
-				continue; // пропустить инструкции ниже
+				continue; 
 			}
-			shownext = !shownext; // сменить значение флага для отображения следующей фигуры
-			updatescrn();		  // перерисовать экран с учетом новой информации
+			shownext = !shownext; 
+			updatescrn();		  
 			continue;
 		case MOVR:
-			if (end) // если игра закончилась
+			if (end) 
 			{
-				continue; // пропустить инструкции ниже
+				continue; 
 			}
-			moveright();  // передвинуть фигуру вправо
-			updatescrn(); // перерисовать экран
+			moveright();  
+			updatescrn(); 
 			continue;
 		case MOVL:
-			if (end) // если игра закончилась
+			if (end) 
 			{
-				continue; // пропустить инструкции ниже
+				continue; 
 			}
-			moveleft();	  // передвинуть фигуру влево
-			updatescrn(); // перерисовать экран
+			moveleft();	  
+			updatescrn(); 
 			continue;
 		case ROTA:
 			if (end || fixedpoint[0] < 2)
 			{
-				continue; // пропустить инструкции ниже
+				continue; 
 			}
-			rotate();	  // повернуть фигуру
-			updatescrn(); // перерисовать экран
+			rotate();	  
+			updatescrn(); 
 			continue;
 		case TPLS:
-			if (!end) // если игра НЕ закончилась
+			if (!end) 
 			{
-				continue; // пропустить инструкции ниже
+				continue; 
 			}
-			toplist(); // выводим топлист (топ-20)
+			toplist(); 
 		}
 
-		if (end) // если игра закончилась
+		if (end) 
 		{
-			gameover(); // выполняем необходимые функции по завершению игры (топлист + смена информации на экране)
-			continue;	// пропустить инструкции ниже
+			gameover(); 
+			continue;	
 		}
-		if (clrlines == LINESFORLVLUP) // если количество очищенных линий достигло значения для перехода на новый уровень
+		if (clrlines == LINESFORLVLUP) 
 		{
-			if (level < MAXLEVEL) // если текущий уровень не максимальный
+			if (level < MAXLEVEL) 
 			{
-				++level;	   // + уровень
-				updatelevel(); // перепечатываем номер уровня в массиве left
-				clrlines = 0;  // обнуляем количество очищенных линий
+				++level;	   
+				updatelevel(); 
+				clrlines = 0;  
 			}
 		}
-		gettimeofday(&t2, NULL);//фиксируем текущее время
-		if ((((t2.tv_sec - t1.tv_sec) * 1000) + ((t2.tv_usec - t1.tv_usec) / 1000)) > DROPINTERVAL)//если прошло времени больше, чем дропинтервал
+		gettimeofday(&t2, NULL);/
+		if ((((t2.tv_sec - t1.tv_sec) * 1000) + ((t2.tv_usec - t1.tv_usec) / 1000)) > DROPINTERVAL)
 		{
-			if (movedown())//если фигуру НЕ удалось успешно опустить вниз, то есть уже конец игры
+			if (movedown())
 			{
-				continue;//пропустить инструкции ниже
+				continue;
 			}
-			updatescrn();//обновляем экран с обновленной информацией о положении фигуры
-			gettimeofday(&t1, NULL);//обновляем время
+			updatescrn();
+			gettimeofday(&t1, NULL);
 		}
 	}
-	return 1; // выходим из игры
+	return 1;
 }
 #endif
