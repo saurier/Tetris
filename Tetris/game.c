@@ -234,7 +234,7 @@ void checkclr()
 	clrlines += cleared;
 }
 
-// initializes a new piece зачем фикседпоинт
+// initializes a new piece
 void initpiece()
 {
 	checkclr(); 
